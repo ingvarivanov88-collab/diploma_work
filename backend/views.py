@@ -5,6 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
 from .models import Product, Cart, CartItem, Order, OrderItem, Contact
 from .serializers import ProductSerializer, UserSerializer
+from .emails import send_order_confirmation, send_invoice_to_admin
 
 
 # 1. Список всех товаров
@@ -85,6 +86,13 @@ class OrderView(APIView):
 
         for item in cart.items.all():
             OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
+
+        # --- ОТПРАВКА ПИСЕМ ---
+        items = order.items.all()
+        user_email = request.user.email
+        if user_email:
+            send_order_confirmation(user_email, order.id, items)
+        send_invoice_to_admin(order.id, items, request.user)
 
         cart.items.all().delete()
 

@@ -116,8 +116,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # DRF settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ],
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.AllowAny',
@@ -127,3 +127,7 @@ REST_FRAMEWORK = {
 # --- ИСПРАВЛЕНИЕ: Куда перенаправлять после входа/выхода ---
 LOGIN_REDIRECT_URL = '/api/products/'
 LOGOUT_REDIRECT_URL = '/api/products/'
+
+# --- НАСТРОЙКА EMAIL (Вывод в консоль для теста) ---
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'noreply@diploma_work.ru'
