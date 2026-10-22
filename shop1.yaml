@@ -1,0 +1,24 @@
+shop: "Магазин на диване"
+categories:
+  - name: "Электроника"
+    products:
+      - name: "Телевизор"
+        description: "4K, 55 дюймов"
+        price: 50000
+        quantity: 10
+        parameters:
+          - name: "Диагональ"
+            value: "55"
+          - name: "Разрешение"
+            value: "4K"
+      - name: "Смартфон"
+        price: 30000
+        quantity: 20
+        parameters:
+          - name: "Память"
+            value: "128 ГБ"
+  - name: "Одежда"
+    products:
+      - name: "Футболка"
+        price: 1500
+        quantity: 100
