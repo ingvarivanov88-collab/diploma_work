@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth import authenticate, login
 from .models import Product, Cart, CartItem, Order, OrderItem, Contact
 from .serializers import ProductSerializer, UserSerializer
-from .emails import send_order_confirmation, send_invoice_to_admin
+from .tasks import send_order_confirmation_task, send_invoice_to_admin_task
 
 
 # 1. Список всех товаров
@@ -84,16 +84,24 @@ class OrderView(APIView):
 
         order = Order.objects.create(user=request.user, status='new')
 
+        # Собираем данные для фоновых задач (чтобы не передавать объекты БД)
+        items_data = []
         for item in cart.items.all():
+            items_data.append({
+                "product": item.product.name,
+                "quantity": item.quantity,
+                "price": str(item.product.price)
+            })
             OrderItem.objects.create(order=order, product=item.product, quantity=item.quantity)
 
-        # --- ОТПРАВКА ПИСЕМ ---
-        items = order.items.all()
+        # --- ЗАПУСКАЕМ ФОНОВЫЕ ЗАДАЧИ ---
         user_email = request.user.email
         if user_email:
-            send_order_confirmation(user_email, order.id, items)
-        send_invoice_to_admin(order.id, items, request.user)
+            send_order_confirmation_task.delay(user_email, order.id, items_data)
 
+        send_invoice_to_admin_task.delay(order.id, items_data, request.user.username)
+
+        # Очищаем корзину
         cart.items.all().delete()
 
         return Response({"message": "Заказ оформлен", "order_id": order.id}, status=status.HTTP_201_CREATED)

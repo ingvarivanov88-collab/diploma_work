@@ -128,10 +128,14 @@ REST_FRAMEWORK = {
 LOGIN_REDIRECT_URL = '/api/products/'
 LOGOUT_REDIRECT_URL = '/api/products/'
 
-# --- НАСТРОЙКА EMAIL (Вывод в консоль для теста) ---
+# --- НАСТРОЙКА EMAIL ---
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@diploma_work.ru'
 
-# --- ИСПРАВЛЕНИЕ КОДИРОВКИ (Чтобы письма в консоли были читаемыми) ---
-EMAIL_ENCODING = None
-DEFAULT_CHARSET = 'utf-8'
+# --- НАСТРОЙКА CELERY ---
+CELERY_BROKER_URL = 'redis://localhost:6379/0'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'UTC'

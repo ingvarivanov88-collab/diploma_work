@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Shop, Category, Product, ProductParameter, Order, OrderItem, Contact
-from .emails import send_status_update
+from .tasks import send_status_update_task
 
 
 @admin.register(Shop)
@@ -35,13 +35,11 @@ class OrderAdmin(admin.ModelAdmin):
     search_fields = ('user__username',)
 
     def save_model(self, request, obj, form, change):
-        """Переопределяем сохранение, чтобы отправить письмо при смене статуса."""
-        if change:  # Если это редактирование существующего заказа
+        if change:
             old_obj = Order.objects.get(pk=obj.pk)
             if old_obj.status != obj.status:
-                # Отправляем письмо клиенту
                 if obj.user.email:
-                    send_status_update(obj.user.email, obj.id, obj.get_status_display())
+                    send_status_update_task.delay(obj.user.email, obj.id, obj.get_status_display())
         super().save_model(request, obj, form, change)
 
 
