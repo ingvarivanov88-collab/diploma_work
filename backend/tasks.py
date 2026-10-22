@@ -1,60 +1,96 @@
 from celery import shared_task
 from django.core.mail import send_mail
 from django.conf import settings
+import yaml
+from .models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
+
+
+@shared_task
+def send_email(subject, message, recipient_list):
+    """Универсальная задача для отправки email."""
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,
+        recipient_list,
+        fail_silently=False,
+    )
+
+
+@shared_task
+def do_import(file_path):
+    """Фоновая задача для импорта товаров из YAML."""
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = yaml.safe_load(f)
+
+    shop_name = data.get('shop')
+    categories = data.get('categories', [])
+
+    shop, _ = Shop.objects.get_or_create(name=shop_name)
+
+    for cat_data in categories:
+        cat_name = cat_data.get('name')
+        category, _ = Category.objects.get_or_create(name=cat_name)
+        category.shops.add(shop)
+
+        products = cat_data.get('products', [])
+        for prod_data in products:
+            product, _ = Product.objects.get_or_create(
+                name=prod_data['name'],
+                category=category
+            )
+
+            external_id = prod_data.get('id', 0)
+            if not external_id:
+                external_id = abs(hash(prod_data['name'])) % 1000000
+
+            product_info, _ = ProductInfo.objects.update_or_create(
+                external_id=external_id,
+                product=product,
+                shop=shop,
+                defaults={
+                    'model': prod_data.get('model', ''),
+                    'price': prod_data['price'],
+                    'price_rrc': prod_data.get('price_rrc', prod_data['price']),
+                    'quantity': prod_data.get('quantity', 0),
+                }
+            )
+
+            parameters = prod_data.get('parameters', [])
+            for param in parameters:
+                parameter, _ = Parameter.objects.get_or_create(name=param['name'])
+                ProductParameter.objects.update_or_create(
+                    product_info=product_info,
+                    parameter=parameter,
+                    defaults={'value': str(param['value'])}
+                )
+
+    return f"Импорт завершён. Магазин: {shop_name}"
 
 
 @shared_task
 def send_order_confirmation_task(user_email, order_id, items):
-    """Фоновая задача: отправка подтверждения заказа клиенту."""
     subject = f'Подтверждение заказа #{order_id}'
-
     message = f'Спасибо за ваш заказ #{order_id}!\n\n'
     message += 'Ваш заказ:\n'
     for item in items:
         message += f'- {item["product"]} (x{item["quantity"]})\n'
-
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user_email],
-        fail_silently=False,
-    )
+    send_email.delay(subject, message, [user_email])
 
 
 @shared_task
 def send_invoice_to_admin_task(order_id, items, username):
-    """Фоновая задача: отправка накладной администратору."""
     subject = f'Новая накладная по заказу #{order_id}'
-
     message = f'Поступил новый заказ #{order_id} от {username}.\n\n'
     message += 'Состав заказа:\n'
     for item in items:
         message += f'- {item["product"]} (x{item["quantity"]}) — {item["price"]} руб.\n'
-
-    admin_email = 'admin@diploma_work.ru'
-
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [admin_email],
-        fail_silently=False,
-    )
+    send_email.delay(subject, message, ['admin@diploma_work.ru'])
 
 
 @shared_task
 def send_status_update_task(user_email, order_id, new_status):
-    """Фоновая задача: уведомление о смене статуса."""
     subject = f'Статус вашего заказа #{order_id} изменён'
-
     message = f'Статус вашего заказа #{order_id} был изменён на: {new_status}.\n'
     message += 'Спасибо, что выбрали нас!'
-
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,
-        [user_email],
-        fail_silently=False,
-    )
+    send_email.delay(subject, message, [user_email])

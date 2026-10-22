@@ -1,0 +1,50 @@
+shop: "ТехноМир 2026"
+categories:
+  - name: "Смартфоны"
+    products:
+      - name: "iPhone 17 Pro Max"
+        description: "Титан, чип A19 Pro, 1 ТБ"
+        price: 189990
+        quantity: 12
+        parameters:
+          - name: "Память"
+            value: "1 ТБ"
+          - name: "Цвет"
+            value: "Титан"
+      - name: "Samsung Galaxy S26 Ultra"
+        description: "ИИ-камера 300 МП, 12 ГБ RAM"
+        price: 149990
+        quantity: 18
+        parameters:
+          - name: "Память"
+            value: "512 ГБ"
+      - name: "Xiaomi 16 Pro"
+        description: "Лучшее соотношение цены и качества"
+        price: 89990
+        quantity: 30
+        parameters:
+          - name: "Память"
+            value: "256 ГБ"
+  - name: "Ноутбуки"
+    products:
+      - name: "MacBook Pro 16 M5"
+        description: "Чип M5 Pro, 36 ГБ RAM"
+        price: 279990
+        quantity: 5
+        parameters:
+          - name: "Процессор"
+            value: "M5 Pro"
+      - name: "ASUS ROG Zephyrus G16"
+        description: "RTX 5070, Intel Core Ultra 9"
+        price: 229990
+        quantity: 7
+  - name: "Аксессуары"
+    products:
+      - name: "AirPods Pro 3"
+        description: "Активное шумоподавление нового поколения"
+        price: 29990
+        quantity: 40
+      - name: "Чехол MagSafe для iPhone 17"
+        description: "Прозрачный, с поддержкой зарядки"
+        price: 4990
+        quantity: 100

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head><title>Импорт товаров</title></head>
+<body>
+    <h1>Импорт товаров из YAML</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="file_path">Путь к файлу (например, shop_big.yaml):</label>
+        <input type="text" name="file_path" id="file_path" required>
+        <button type="submit">Запустить импорт</button>
+    </form>
+</body>
+</html>

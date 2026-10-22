@@ -1,6 +1,6 @@
 import yaml
 from django.core.management.base import BaseCommand
-from backend.models import Shop, Category, Product, ProductParameter
+from backend.models import Shop, Category, Product, ProductInfo, Parameter, ProductParameter
 
 
 class Command(BaseCommand):
@@ -28,27 +28,43 @@ class Command(BaseCommand):
             category.shops.add(shop)
             self.stdout.write(f"  Категория: {category.name}")
 
-            # 3. Проходим по товарам
-            for prod_data in cat_data.get('products', []):
-                product, created = Product.objects.update_or_create(
+            # 3. Проходим по товарам внутри категории
+            products = cat_data.get('products', [])
+            for prod_data in products:
+                # Создаём Product
+                product, _ = Product.objects.get_or_create(
                     name=prod_data['name'],
+                    category=category
+                )
+
+                # Создаём ProductInfo (или обновляем, если уже есть)
+                # Используем счётчик для external_id, если его нет
+                external_id = prod_data.get('id', 0)
+                if not external_id:
+                    # Если id нет, генерируем его на основе названия (чтобы было уникально)
+                    external_id = abs(hash(prod_data['name'])) % 1000000
+
+                product_info, created = ProductInfo.objects.update_or_create(
+                    external_id=external_id,
+                    product=product,
                     shop=shop,
                     defaults={
-                        'category': category,
-                        'description': prod_data.get('description', ''),
+                        'model': prod_data.get('model', ''),
                         'price': prod_data['price'],
+                        'price_rrc': prod_data.get('price_rrc', prod_data['price']),
                         'quantity': prod_data.get('quantity', 0),
-                        'is_active': True,
                     }
                 )
                 self.stdout.write(f"    Товар: {product.name} (создан: {created})")
 
-                # 4. Параметры товара
-                for param_data in prod_data.get('parameters', []):
+                # 4. Параметры
+                parameters = prod_data.get('parameters', [])
+                for param in parameters:
+                    parameter, _ = Parameter.objects.get_or_create(name=param['name'])
                     ProductParameter.objects.update_or_create(
-                        product=product,
-                        name=param_data['name'],
-                        defaults={'value': param_data['value']}
+                        product_info=product_info,
+                        parameter=parameter,
+                        defaults={'value': str(param['value'])}
                     )
 
         self.stdout.write(self.style.SUCCESS('Импорт завершён!'))

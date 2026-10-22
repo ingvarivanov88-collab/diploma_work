@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Дипломный проект — Автоматизация закупок</title>
+    <style>
+        body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f4f9; margin: 0; padding: 40px; }
+        h1 { text-align: center; color: #1a1a2e; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; max-width: 1200px; margin: 30px auto; }
+        .card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); transition: transform 0.2s; }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { margin-top: 0; color: #16213e; }
+        .card a { display: inline-block; margin-top: 10px; color: #e94560; text-decoration: none; font-weight: bold; }
+        .card a:hover { text-decoration: underline; }
+        .card p { color: #666; font-size: 0.9em; }
+    </style>
+</head>
+<body>
+    <h1>🛒 Дипломный проект: Автоматизация закупок</h1>
+    <div class="grid">
+        <div class="card">
+            <h3>🛍️ Визуальный каталог</h3>
+            <p>Красивая витрина с товарами</p>
+            <a href="/catalog/">Перейти →</a>
+        </div>
+        <div class="card">
+            <h3>📦 API товаров</h3>
+            <p>Список всех товаров (JSON)</p>
+            <a href="/api/products/">Перейти →</a>
+        </div>
+        <div class="card">
+            <h3>🛒 Корзина</h3>
+            <p>Просмотр и добавление товаров</p>
+            <a href="/api/cart/">Перейти →</a>
+        </div>
+        <div class="card">
+            <h3>📋 Заказы</h3>
+            <p>Список ваших заказов</p>
+            <a href="/api/orders/">Перейти →</a>
+        </div>
+        <div class="card">
+            <h3>📍 Контакты</h3>
+            <p>Адреса доставки</p>
+            <a href="/api/contacts/">Перейти →</a>
+        </div>
+        <div class="card">
+            <h3>🔐 Вход (DRF)</h3>
+            <p>Авторизация через сессию</p>
+            <a href="/api-auth/login/">Войти →</a>
+        </div>
+        <div class="card">
+            <h3>📝 Регистрация</h3>
+            <p>Создать нового пользователя</p>
+            <a href="/api/register/">Зарегистрироваться →</a>
+        </div>
+        <div class="card">
+            <h3>🔑 Сброс пароля</h3>
+            <p>Восстановление пароля через email</p>
+            <a href="/api/password_reset/">Сбросить →</a>
+        </div>
+        <div class="card">
+            <h3>⚙️ Админка</h3>
+            <p>Управление магазином</p>
+            <a href="/admin/">Перейти →</a>
+        </div>
+        <div class="card">
+            <h3>📥 Импорт товаров</h3>
+            <p>Загрузка товаров из YAML</p>
+            <a href="/admin/import/">Запустить →</a>
+        </div>
+    </div>
+</body>
+</html>
