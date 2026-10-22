@@ -131,3 +131,7 @@ LOGOUT_REDIRECT_URL = '/api/products/'
 # --- НАСТРОЙКА EMAIL (Вывод в консоль для теста) ---
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_FROM_EMAIL = 'noreply@diploma_work.ru'
+
+# --- ИСПРАВЛЕНИЕ КОДИРОВКИ (Чтобы письма в консоли были читаемыми) ---
+EMAIL_ENCODING = None
+DEFAULT_CHARSET = 'utf-8'
