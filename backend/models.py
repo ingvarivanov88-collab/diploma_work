@@ -2,6 +2,8 @@ from django.db import models
 from django.contrib.auth.models import User
 
 
+# Магазин (поставщик). У каждого магазина свой пользователь,
+# чтобы потом отдавать ему только его заказы.
 class Shop(models.Model):
     name = models.CharField(max_length=50, verbose_name='Название')
     url = models.URLField(verbose_name='Ссылка', null=True, blank=True)
@@ -12,6 +14,8 @@ class Shop(models.Model):
         return self.name
 
 
+# Категория товаров. Одна категория может быть у нескольких магазинов,
+# поэтому связь many-to-many.
 class Category(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
     shops = models.ManyToManyField(Shop, verbose_name='Магазины', related_name='categories', blank=True)
@@ -20,6 +24,9 @@ class Category(models.Model):
         return self.name
 
 
+# Общий продукт (название и категория).
+# Цены и остатки храним в ProductInfo, потому что один товар
+# может быть в разных магазинах по разной цене.
 class Product(models.Model):
     name = models.CharField(max_length=80, verbose_name='Название')
     category = models.ForeignKey(Category, verbose_name='Категория', related_name='products', blank=True, on_delete=models.CASCADE)
@@ -28,6 +35,8 @@ class Product(models.Model):
         return self.name
 
 
+# Конкретный товар в конкретном магазине.
+# Внешний ID нужен, чтобы не дублировать товары при повторном импорте.
 class ProductInfo(models.Model):
     model = models.CharField(max_length=80, verbose_name='Модель', blank=True)
     external_id = models.PositiveIntegerField(verbose_name='Внешний ИД')
@@ -38,6 +47,7 @@ class ProductInfo(models.Model):
     price_rrc = models.PositiveIntegerField(verbose_name='Рекомендуемая розничная цена')
 
     class Meta:
+        # Один и тот же товар в одном магазине не должен дублироваться
         constraints = [
             models.UniqueConstraint(fields=['product', 'shop', 'external_id'], name='unique_product_info'),
         ]
@@ -46,6 +56,8 @@ class ProductInfo(models.Model):
         return f"{self.product.name} ({self.shop.name})"
 
 
+# Справочник параметров (например, "Цвет", "Память").
+# Вынес отдельно, чтобы не дублировать названия в каждом товаре.
 class Parameter(models.Model):
     name = models.CharField(max_length=40, verbose_name='Название')
 
@@ -53,17 +65,22 @@ class Parameter(models.Model):
         return self.name
 
 
+# Значение конкретного параметра для конкретного товара.
+# Например, для iPhone это будет "Память: 256 ГБ".
 class ProductParameter(models.Model):
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о продукте', related_name='product_parameters', blank=True, on_delete=models.CASCADE)
     parameter = models.ForeignKey(Parameter, verbose_name='Параметр', related_name='product_parameters', blank=True, on_delete=models.CASCADE)
     value = models.CharField(verbose_name='Значение', max_length=100)
 
     class Meta:
+        # У одного товара не может быть два одинаковых параметра
         constraints = [
             models.UniqueConstraint(fields=['product_info', 'parameter'], name='unique_product_parameter'),
         ]
 
 
+# Контакт (адрес доставки). У одного пользователя может быть несколько.
+# Поля "корпус" и "строение" сделал необязательными, потому что не у всех домов они есть.
 class Contact(models.Model):
     user = models.ForeignKey(User, verbose_name='Пользователь', related_name='contacts', blank=True, on_delete=models.CASCADE)
     first_name = models.CharField(max_length=50, verbose_name='Имя', blank=True, null=True)
@@ -80,6 +97,8 @@ class Contact(models.Model):
         return f'{self.city} {self.street} {self.house}'
 
 
+# Заказ. Сначала создаётся со статусом 'basket' (это и есть корзина),
+# потом при оформлении меняем статус на 'new'.
 class Order(models.Model):
     STATUS_CHOICES = [
         ('basket', 'Статус корзины'),
@@ -99,12 +118,14 @@ class Order(models.Model):
         return f"Заказ #{self.id} ({self.user.username}) - {self.state}"
 
 
+# Позиция заказа. Хранит, какой товар и в каком количестве заказали.
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, verbose_name='Заказ', related_name='ordered_items', blank=True, on_delete=models.CASCADE)
     product_info = models.ForeignKey(ProductInfo, verbose_name='Информация о продукте', related_name='ordered_items', blank=True, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(verbose_name='Количество')
 
     class Meta:
+        # Один товар в одном заказе должен быть одной строкой, а не дублироваться
         constraints = [
             models.UniqueConstraint(fields=['order_id', 'product_info'], name='unique_order_item'),
         ]
