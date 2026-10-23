@@ -70,9 +70,9 @@ WSGI_APPLICATION = 'config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.getenv('POSTGRES_DB', 'diploma_db'),
-        'USER': os.getenv('POSTGRES_USER', 'diploma_user'),
-        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'diploma_pass'),
+        'NAME': os.getenv('POSTGRES_DB', 'retail_orders_db'),
+        'USER': os.getenv('POSTGRES_USER', 'retail_user'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD', 'retail_pass'),
         'HOST': os.getenv('DB_HOST', 'db'),
         'PORT': os.getenv('DB_PORT', '5432'),
     }
@@ -133,13 +133,13 @@ REST_FRAMEWORK = {
     ],
 }
 
-# --- ИСПРАВЛЕНИЕ: Куда перенаправлять после входа/выхода ---
+# --- Куда перенаправлять после входа/выхода ---
 LOGIN_REDIRECT_URL = '/api/products/'
 LOGOUT_REDIRECT_URL = '/api/products/'
 
 # --- НАСТРОЙКА EMAIL ---
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
-DEFAULT_FROM_EMAIL = 'noreply@diploma_work.ru'
+DEFAULT_FROM_EMAIL = 'noreply@retail-orders-api.ru'
 
 # --- НАСТРОЙКА CELERY ---
 CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', 'redis://redis:6379/0')

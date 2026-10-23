@@ -2,15 +2,15 @@ services:
   db:
     image: postgres:16
     environment:
-      POSTGRES_USER: diploma_user
-      POSTGRES_PASSWORD: diploma_pass
-      POSTGRES_DB: diploma_db
+      POSTGRES_USER: retail_user
+      POSTGRES_PASSWORD: retail_pass
+      POSTGRES_DB: retail_orders_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U diploma_user"]
+      test: ["CMD-SHELL", "pg_isready -U retail_user"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -30,9 +30,9 @@ services:
     environment:
       - SECRET_KEY=django-insecure-8#8b9u6&5#8v9k5#2v6y0v#8b9u6&5#8v9k5#2v6y0v#8b9u6&5
       - DEBUG=True
-      - POSTGRES_DB=diploma_db
-      - POSTGRES_USER=diploma_user
-      - POSTGRES_PASSWORD=diploma_pass
+      - POSTGRES_DB=retail_orders_db
+      - POSTGRES_USER=retail_user
+      - POSTGRES_PASSWORD=retail_pass
       - DB_HOST=db
       - DB_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379/0
@@ -51,9 +51,9 @@ services:
     environment:
       - SECRET_KEY=django-insecure-8#8b9u6&5#8v9k5#2v6y0v#8b9u6&5#8v9k5#2v6y0v#8b9u6&5
       - DEBUG=True
-      - POSTGRES_DB=diploma_db
-      - POSTGRES_USER=diploma_user
-      - POSTGRES_PASSWORD=diploma_pass
+      - POSTGRES_DB=retail_orders_db
+      - POSTGRES_USER=retail_user
+      - POSTGRES_PASSWORD=retail_pass
       - DB_HOST=db
       - DB_PORT=5432
       - CELERY_BROKER_URL=redis://redis:6379/0
