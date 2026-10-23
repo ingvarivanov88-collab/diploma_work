@@ -28,8 +28,8 @@
 **1. Склонируйте репозиторий:**
 
 ```bash
-git clone https://github.com/ingvarivanov88-collab/diploma_work.git
-cd diploma_work
+git clone https://github.com/ingvarivanov88-collab/retail_orders_api.git
+cd retail_orders_api
 ```
 
 **2. Соберите образы и запустите контейнеры:**
